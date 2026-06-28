@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LUBRIX AI</title>
+<style>
+/* ─── RESET & VARS ─────────────────────────────────── */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#09090f;
+  --s1:#111118;
+  --s2:#181824;
+  --s3:#20202e;
+  --s4:#2a2a3d;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.13);
+  --accent:#7c6af7;
+  --accent-d:#5a4bd4;
+  --green:#34d399;
+  --amber:#fbbf24;
+  --red:#f87171;
+  --blue:#60a5fa;
+  --text:#ededf5;
+  --t2:#8b8ba8;
+  --t3:#4a4a65;
+  --r:10px;
+  --r-sm:7px;
+}
+
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ─── SCREENS ──────────────────────────────────────── */
+.screen{display:none;min-height:100vh}
+.screen.on{display:flex}
+
+/* ─── AUTH ─────────────────────────────────────────── */
+#s-auth{
+  flex-direction:column;align-items:center;justify-content:center;
+  position:relative;padding:20px;
+}
+#auth-bg-layer{
+  position:fixed;inset:0;z-index:0;
+  background-color:var(--bg);
+  background-size:cover;background-position:center;
+  transition:background .4s;
+}
+#auth-bg-layer::after{
+  content:'';position:absolute;inset:0;
+  background:rgba(9,9,15,0.75);
+}
+
+.auth-wrap{position:relative;z-index:1;width:100%;max-width:420px}
+
+.auth-brand{text-align:center;margin-bottom:32px}
+.auth-logo-ring{
+  width:62px;height:62px;border-radius:18px;
+  background:linear-gradient(135deg,var(--accent),#a78bfa);
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;margin:0 auto 14px;
+}
+.auth-brand h1{font-size:26px;font-weight:800;letter-spacing:-.5px}
+.auth-brand h1 span{color:var(--accent)}
+.auth-brand p{font-size:12px;color:var(--t2);margin-top:4px}
+
+.auth-card{
+  background:rgba(17,17,24,0.92);
+  border:1px solid var(--border2);
+  border-radius:20px;padding:32px;
+  backdrop-filter:blur(20px);
+}
+.auth-tabs{
+  display:flex;background:var(--s2);border-radius:var(--r-sm);
+  padding:4px;margin-bottom:26px;
+}
+.a-tab{
+  flex:1;text-align:center;padding:9px 0;
+  border-radius:5px;cursor:pointer;font-size:14px;
+  color:var(--t2);transition:all .2s;border:none;background:transparent;
+}
+.a-tab.on{background:var(--accent);color:#fff;font-weight:700}
+
+.fg{margin-bottom:16px}
+.fg label{font-size:12px;color:var(--t2);margin-bottom:6px;display:block}
+.fi{
+  width:100%;background:var(--s2);border:1px solid var(--border2);
+  border-radius:var(--r-sm);color:var(--text);font-size:14px;
+  padding:11px 14px;outline:none;transition:border .2s;font-family:inherit;
+}
+.fi:focus{border-color:var(--accent)}
+.fi::placeholder{color:var(--t3)}
+textarea.fi{resize:vertical;line-height:1.5}
+
+.btn{
+  width:100%;padding:13px;background:var(--accent);color:#fff;
+  border:none;border-radius:var(--r-sm);font-size:15px;
+  font-weight:700;cursor:pointer;transition:opacity .2s,transform .1s;
+  margin-top:4px;letter-spacing:.3px;
+}
+.btn:hover{opacity:.87}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.danger{background:var(--red)}
+.btn.ghost{background:transparent;border:1px solid var(--border2);color:var(--t2)}
+.btn.ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn.sm{width:auto;padding:9px 16px;font-size:13px}
+.btn.xs{width:auto;padding:6px 12px;font-size:12px}
+
+.auth-msg{font-size:13px;text-align:center;margin-top:12px;min-height:18px}
+.auth-msg.err{color:var(--red)}
+.auth-msg.ok{color:var(--green)}
+
+/* ─── APP LAYOUT ───────────────────────────────────── */
+#s-app{flex-direction:row}
+
+.sidebar{
+  width:248px;min-height:100vh;background:var(--s1);
+  border-right:1px solid var(--border);display:flex;
+  flex-direction:column;flex-shrink:0;
+}
+.sb-head{
+  padding:20px 18px 18px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:11px;
+}
+.sb-icon{
+  width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),#a78bfa);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  flex-shrink:0;
+}
+.sb-head h2{font-size:15px;font-weight:800;line-height:1.1}
+.sb-head small{font-size:10px;color:var(--green);display:block;margin-top:2px}
+
+.sb-nav{flex:1;padding:14px 10px 0}
+.nav-label{
+  font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--t3);padding:0 8px;margin-bottom:5px;margin-top:14px;
+}
+.nav-btn{
+  display:flex;align-items:center;gap:9px;padding:9px 10px;
+  border-radius:var(--r-sm);cursor:pointer;font-size:13.5px;color:var(--t2);
+  transition:all .15s;margin-bottom:1px;border:none;
+  background:transparent;width:100%;text-align:left;
+}
+.nav-btn:hover{background:var(--s2);color:var(--text)}
+.nav-btn.on{background:rgba(124,106,247,.16);color:var(--accent);font-weight:700}
+.nav-btn .ni{font-size:17px;width:22px;text-align:center}
+
+/* model selector in sidebar */
+.model-selector{padding:14px 10px;border-top:1px solid var(--border)}
+.model-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.model-opts{display:flex;flex-direction:column;gap:5px}
+.model-opt{
+  display:flex;align-items:center;gap:9px;padding:9px 10px;
+  border-radius:var(--r-sm);cursor:pointer;border:1px solid var(--border);
+  background:transparent;color:var(--t2);font-size:12.5px;
+  transition:all .15s;text-align:left;width:100%;
+}
+.model-opt:hover{border-color:var(--border2);color:var(--text);background:var(--s2)}
+.model-opt.on{border-color:var(--accent);background:rgba(124,106,247,.12);color:var(--accent)}
+.model-opt .mo-icon{font-size:16px;width:20px;text-align:center}
+.model-opt .mo-text{flex:1}
+.model-opt .mo-name{font-weight:700;font-size:12px;display:block}
+.model-opt .mo-desc{font-size:10px;color:var(--t3);display:block;margin-top:1px}
+.model-opt.on .mo-desc{color:rgba(124,106,247,.7)}
+.model-opt .mo-badge{
+  font-size:9px;padding:2px 6px;border-radius:99px;font-weight:700;
+  background:rgba(251,191,36,.15);color:var(--amber);
+}
+
+.sb-user{
+  padding:14px 14px 16px;border-top:1px solid var(--border);
+}
+.su-info{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.su-av{
+  width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent),#a78bfa);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:800;
+}
+.su-name{font-size:13px;font-weight:700}
+.su-role{font-size:11px;color:var(--t2)}
+.su-limit{font-size:11px;color:var(--amber);margin-top:2px}
+
+/* limit bar */
+.limit-bar-wrap{margin-bottom:10px}
+.limit-bar-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-bottom:4px}
+.limit-bar{height:4px;background:var(--s3);border-radius:99px;overflow:hidden}
+.limit-bar-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .4s}
+.limit-bar-fill.warn{background:var(--amber)}
+.limit-bar-fill.out{background:var(--red)}
+
+/* ─── PAGES ─────────────────────────────────────────── */
+.main{flex:1;display:flex;flex-direction:column;min-height:100vh;overflow:hidden}
+.page{display:none;flex-direction:column;flex:1;height:100vh;overflow:hidden}
+.page.on{display:flex}
+
+/* ─── CHAT PAGE ─────────────────────────────────────── */
+.chat-top{
+  padding:15px 24px;border-bottom:1px solid var(--border);
+  background:var(--s1);display:flex;align-items:center;
+  justify-content:space-between;gap:12px;flex-shrink:0;
+}
+.ct-left h3{font-size:15px;font-weight:700}
+.ct-left p{font-size:11px;color:var(--t2);margin-top:2px}
+.ct-model-badge{
+  font-size:11px;padding:4px 10px;border-radius:99px;
+  background:rgba(124,106,247,.15);color:var(--accent);
+  border:1px solid rgba(124,106,247,.3);font-weight:700;
+  white-space:nowrap;flex-shrink:0;
+}
+.ct-model-badge.super-badge{
+  background:rgba(251,191,36,.12);color:var(--amber);
+  border-color:rgba(251,191,36,.3);
+}
+
+.chat-msgs{
+  flex:1;overflow-y:auto;padding:22px 24px;
+  display:flex;flex-direction:column;gap:16px;
+  scroll-behavior:smooth;
+}
+.chat-msgs::-webkit-scrollbar{width:4px}
+.chat-msgs::-webkit-scrollbar-thumb{background:var(--s4);border-radius:99px}
+
+/* messages */
+.msg{display:flex;gap:10px;max-width:82%}
+.msg.user{flex-direction:row-reverse;align-self:flex-end}
+.msg.ai{align-self:flex-start}
+.msg-av{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+}
+.msg.ai .msg-av{background:var(--s3)}
+.msg.user .msg-av{background:var(--accent);font-size:12px;font-weight:800}
+.msg-body{}
+.msg-content{
+  padding:11px 15px;border-radius:14px;font-size:14px;line-height:1.65;
+  white-space:pre-wrap;word-break:break-word;
+}
+.msg.ai .msg-content{background:var(--s2);border:1px solid var(--border)}
+.msg.user .msg-content{background:var(--accent);color:#fff}
+.msg-img{
+  max-width:260px;border-radius:10px;margin-bottom:6px;
+  border:1px solid var(--border);display:block;
+}
+.msg-time{font-size:10px;color:var(--t3);margin-top:5px}
+.msg.user .msg-time{text-align:right}
+
+/* thinking block */
+.thinking-block{
+  background:rgba(124,106,247,.07);border:1px solid rgba(124,106,247,.2);
+  border-radius:10px;padding:10px 14px;margin-bottom:8px;
+  font-size:12px;color:rgba(124,106,247,.85);line-height:1.6;
+}
+.thinking-toggle{
+  font-size:11px;color:var(--accent);cursor:pointer;
+  display:flex;align-items:center;gap:5px;margin-bottom:6px;
+  background:none;border:none;padding:0;
+}
+.thinking-content{display:none;white-space:pre-wrap;word-break:break-word}
+.thinking-content.open{display:block}
+
+/* typing */
+.typing{
+  display:none;align-self:flex-start;
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:14px;padding:11px 15px;gap:5px;align-items:center;
+}
+.typing.on{display:flex}
+.dot{width:6px;height:6px;background:var(--t2);border-radius:50%;
+  animation:bop .9s infinite}
+.dot:nth-child(2){animation-delay:.18s}
+.dot:nth-child(3){animation-delay:.36s}
+@keyframes bop{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-7px)}}
+
+/* chat input area */
+.chat-bottom{
+  padding:14px 24px 18px;border-top:1px solid var(--border);
+  background:var(--s1);flex-shrink:0;
+}
+.quick-btns{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:11px}
+.qb{
+  background:var(--s2);border:1px solid var(--border2);
+  color:var(--t2);border-radius:99px;padding:5px 12px;
+  font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.qb:hover{border-color:var(--accent);color:var(--accent)}
+
+/* image preview in input */
+.img-preview-wrap{
+  display:none;position:relative;margin-bottom:10px;width:fit-content;
+}
+.img-preview-wrap.show{display:block}
+.img-preview-thumb{
+  height:80px;border-radius:8px;border:1px solid var(--border2);
+  display:block;
+}
+.img-preview-remove{
+  position:absolute;top:-6px;right:-6px;width:20px;height:20px;
+  background:var(--red);border-radius:50%;border:none;color:#fff;
+  cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;
+}
+
+.input-row{display:flex;gap:9px;align-items:flex-end}
+.chat-ta{
+  flex:1;background:var(--s2);border:1px solid var(--border2);
+  border-radius:var(--r);color:var(--text);font-size:14px;
+  padding:12px 14px;resize:none;outline:none;
+  min-height:46px;max-height:130px;font-family:inherit;line-height:1.5;
+  transition:border .2s;
+}
+.chat-ta:focus{border-color:var(--accent)}
+.chat-ta::placeholder{color:var(--t3)}
+.chat-ta:disabled{opacity:.45}
+
+.input-actions{display:flex;gap:7px;align-items:flex-end}
+.icon-btn{
+  width:44px;height:44px;border-radius:var(--r-sm);border:1px solid var(--border2);
+  background:var(--s2);color:var(--t2);cursor:pointer;font-size:18px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;flex-shrink:0;
+}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+.icon-btn.send{background:var(--accent);border-color:var(--accent);color:#fff}
+.icon-btn.send:hover{opacity:.85}
+.icon-btn.send:disabled{opacity:.4;cursor:not-allowed}
+.icon-btn.send:active{transform:scale(.93)}
+
+.limit-out-msg{
+  text-align:center;padding:9px;font-size:13px;color:var(--red);
+  background:rgba(248,113,113,.08);border-radius:var(--r-sm);
+  border:1px solid rgba(248,113,113,.2);margin-bottom:10px;
+  display:none;
+}
+
+/* ─── ADMIN PAGE ─────────────────────────────────────── */
+.page-head{
+  padding:18px 26px;border-bottom:1px solid var(--border);
+  background:var(--s1);flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.page-head h2{font-size:17px;font-weight:800}
+.page-head p{font-size:12px;color:var(--t2);margin-top:3px}
+.page-body{flex:1;overflow-y:auto;padding:24px 26px}
+.page-body::-webkit-scrollbar{width:4px}
+.page-body::-webkit-scrollbar-thumb{background:var(--s4);border-radius:99px}
+
+/* admin tabs */
+.atabs{
+  display:flex;gap:4px;margin-bottom:22px;
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:4px;width:fit-content;
+}
+.atab{
+  padding:8px 15px;border-radius:6px;cursor:pointer;
+  font-size:13px;color:var(--t2);transition:all .15s;
+  border:none;background:transparent;
+}
+.atab.on{background:var(--accent);color:#fff;font-weight:700}
+
+.apanel{display:none}
+.apanel.on{display:block}
+
+/* stat cards */
+.stat-row{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px;margin-bottom:22px;
+}
+.stat-card{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px 18px;
+}
+.stat-lbl{font-size:11px;color:var(--t2);margin-bottom:7px}
+.stat-val{font-size:26px;font-weight:800}
+.c-purple{color:var(--accent)}
+.c-green{color:var(--green)}
+.c-amber{color:var(--amber)}
+.c-red{color:var(--red)}
+.c-blue{color:var(--blue)}
+
+/* table */
+.tbl-wrap{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden;margin-bottom:22px;
+}
+.dtbl{width:100%;border-collapse:collapse;font-size:13px}
+.dtbl th{
+  text-align:left;padding:10px 14px;background:var(--s2);
+  color:var(--t2);font-weight:700;font-size:11px;
+  text-transform:uppercase;letter-spacing:.04em;
+  border-bottom:1px solid var(--border);
+}
+.dtbl td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text)}
+.dtbl tr:last-child td{border-bottom:none}
+.dtbl tr:hover td{background:rgba(124,106,247,.04)}
+
+.badge{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700}
+.b-green{background:rgba(52,211,153,.13);color:var(--green)}
+.b-purple{background:rgba(124,106,247,.13);color:var(--accent)}
+.b-amber{background:rgba(251,191,36,.13);color:var(--amber)}
+.b-red{background:rgba(248,113,113,.13);color:var(--red)}
+.b-blue{background:rgba(96,165,250,.13);color:var(--blue)}
+
+.act-btn{
+  padding:5px 9px;border-radius:5px;font-size:11px;font-weight:700;
+  cursor:pointer;transition:all .15s;border:none;margin-right:3px;
+}
+.ab-edit{background:rgba(124,106,247,.13);color:var(--accent)}
+.ab-edit:hover{background:rgba(124,106,247,.28)}
+.ab-del{background:rgba(248,113,113,.1);color:var(--red)}
+.ab-del:hover{background:rgba(248,113,113,.25)}
+.ab-save{background:rgba(52,211,153,.12);color:var(--green)}
+.ab-save:hover{background:rgba(52,211,153,.28)}
+
+.inline-ed{
+  background:var(--s2);border:1px solid var(--accent);
+  border-radius:4px;color:var(--text);font-size:12px;
+  padding:3px 7px;outline:none;width:70px;
+}
+select.inline-ed{width:90px}
+
+/* settings grid */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:720px){.sg{grid-template-columns:1fr}}
+.sc{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:20px}
+.sc h3{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+
+/* color presets */
+.cp-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.cp{
+  width:30px;height:30px;border-radius:7px;cursor:pointer;
+  border:2px solid transparent;transition:transform .15s,border-color .15s;
+}
+.cp:hover{transform:scale(1.12)}
+.cp.on{border-color:#fff}
+.color-input-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+.color-swatch{
+  width:38px;height:38px;border-radius:7px;border:1px solid var(--border2);
+  cursor:pointer;overflow:hidden;flex-shrink:0;
+}
+.color-swatch input[type=color]{
+  width:150%;height:150%;border:none;cursor:pointer;
+  margin:-25%;opacity:0;position:relative;
+}
+
+.upload-zone{
+  border:2px dashed var(--border2);border-radius:var(--r-sm);
+  padding:26px 16px;text-align:center;cursor:pointer;
+  transition:border .2s;background:var(--s2);
+}
+.upload-zone:hover{border-color:var(--accent)}
+.upload-zone input{display:none}
+.uz-icon{font-size:26px;margin-bottom:7px}
+.uz-txt{font-size:12px;color:var(--t2)}
+.bg-preview-img{
+  width:100%;height:76px;border-radius:var(--r-sm);margin-top:10px;
+  object-fit:cover;border:1px solid var(--border);display:none;
+}
+.row-btns{display:flex;gap:8px;margin-top:10px}
+
+/* pricing cards */
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.price-card{
+  background:var(--s2);border:1px solid var(--border2);
+  border-radius:var(--r);padding:18px;
+}
+.price-card h4{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.price-label{font-size:12px;color:var(--t2);margin-bottom:6px}
+.price-input-row{display:flex;gap:8px;align-items:center}
+.price-currency{font-size:14px;color:var(--t2)}
+
+/* ─── MODAL ─────────────────────────────────────────── */
+.modal-ov{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.72);z-index:1000;
+  align-items:center;justify-content:center;padding:16px;
+}
+.modal-ov.on{display:flex}
+.modal{
+  background:var(--s1);border:1px solid var(--border2);
+  border-radius:18px;padding:28px;width:100%;max-width:430px;
+}
+.modal h3{font-size:16px;font-weight:800;margin-bottom:20px}
+.modal-row{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+
+/* ─── TOAST ─────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:22px;right:22px;z-index:9999;
+  background:var(--s2);border:1px solid var(--border2);
+  color:var(--text);padding:12px 18px;border-radius:var(--r-sm);
+  font-size:13px;transform:translateY(80px);opacity:0;
+  transition:all .28s;box-shadow:0 8px 30px rgba(0,0,0,.5);
+}
+.toast.on{transform:translateY(0);opacity:1}
+.toast.ok{border-color:var(--green)}
+.toast.err{border-color:var(--red)}
+
+/* ─── UPGRADE MODAL ──────────────────────────────────── */
+.upgrade-modal .plan-opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.plan-card{
+  border:2px solid var(--border);border-radius:var(--r);padding:16px;
+  cursor:pointer;transition:all .15s;
+}
+.plan-card:hover{border-color:var(--accent)}
+.plan-card.on{border-color:var(--accent);background:rgba(124,106,247,.1)}
+.plan-card h4{font-size:13px;font-weight:700;margin-bottom:6px}
+.plan-card .plan-price{font-size:20px;font-weight:800;color:var(--accent)}
+.plan-card p{font-size:11px;color:var(--t2);margin-top:4px;line-height:1.5}
+
+/* spinner */
+.spinner{
+  display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* scrollbar global */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:var(--s4);border-radius:99px}
+
+/* ─── RESPONSIVE ─────────────────────────────────────── */
+@media(max-width:680px){
+  .sidebar{display:none}
+  .page-head{padding:14px 16px}
+  .page-body,.chat-msgs,.chat-bottom{padding-left:16px;padding-right:16px}
+  .sg{grid-template-columns:1fr}
+  .pricing-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════
+     AUTH SCREEN
+════════════════════════════════════ -->
+<div id="s-auth" class="screen on">
+  <div id="auth-bg-layer"></div>
+  <div class="auth-wrap">
+    <div class="auth-brand">
+      <div class="auth-logo-ring">📈</div>
+      <h1><span id="brand-name-auth">LUBRIX</span> AI</h1>
+      <p id="brand-author-auth">by ridwan • Trading Intelligence</p>
+    </div>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="a-tab on" onclick="authTab('login')">Masuk</button>
+        <button class="a-tab" onclick="authTab('register')">Daftar</button>
+      </div>
+
+      <div id="f-login">
+        <div class="fg"><label>Username</label>
+          <input class="fi" id="l-user" placeholder="Username kamu" autocomplete="username">
+        </div>
+        <div class="fg"><label>Password</label>
+          <input class="fi" type="password" id="l-pass" placeholder="Password" autocomplete="current-password">
+        </div>
+        <button class="btn" onclick="doLogin()">Masuk</button>
+      </div>
+
+      <div id="f-reg" style="display:none">
+        <div class="fg"><label>Username</label>
+          <input class="fi" id="r-user" placeholder="Pilih username (min 3 karakter)">
+        </div>
+        <div class="fg"><label>Email</label>
+          <input class="fi" type="email" id="r-email" placeholder="email@kamu.com">
+        </div>
+        <div class="fg"><label>Password</label>
+          <input class="fi" type="password" id="r-pass" placeholder="Password (min 6 karakter)">
+        </div>
+        <button class="btn" onclick="doRegister()">Buat Akun</button>
+      </div>
+
+      <div class="auth-msg" id="auth-msg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     APP SCREEN
+════════════════════════════════════ -->
+<div id="s-app" class="screen">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-head">
+      <div class="sb-icon">📈</div>
+      <div>
+        <h2 id="sb-ai-name">LUBRIX AI</h2>
+        <small>● Aktif</small>
+      </div>
+    </div>
+    <div class="sb-nav">
+      <div class="nav-label">Menu</div>
+      <button class="nav-btn on" onclick="goPage('chat')" id="nav-chat">
+        <span class="ni">💬</span>Chat Trading
+      </button>
+      <div id="nav-admin-wrap" style="display:none">
+        <div class="nav-label">Admin</div>
+        <button class="nav-btn" onclick="goPage('admin')" id="nav-admin">
+          <span class="ni">🛡️</span>Panel Admin
+        </button>
+      </div>
+    </div>
+
+    <!-- MODEL SELECTOR -->
+    <div class="model-selector">
+      <div class="model-label">Mode AI</div>
+      <div class="model-opts">
+        <button class="model-opt on" id="m-low" onclick="selectModel('low')">
+          <span class="mo-icon">⚡</span>
+          <span class="mo-text">
+            <span class="mo-name" id="m-low-name">LUBRIX LOW</span>
+            <span class="mo-desc">Cepat & efisien</span>
+          </span>
+        </button>
+        <button class="model-opt" id="m-super" onclick="selectModel('super')">
+          <span class="mo-icon">🧠</span>
+          <span class="mo-text">
+            <span class="mo-name" id="m-super-name">LUBRIX SUPER THINKING</span>
+            <span class="mo-desc">Analisis mendalam</span>
+          </span>
+          <span class="mo-badge">PRO</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- USER INFO -->
+    <div class="sb-user">
+      <div class="su-info">
+        <div class="su-av" id="sb-av">U</div>
+        <div>
+          <div class="su-name" id="sb-uname">User</div>
+          <div class="su-role" id="sb-urole">Member</div>
+          <div class="su-limit" id="sb-ulimit"></div>
+        </div>
+      </div>
+      <div class="limit-bar-wrap" id="limit-bar-wrap">
+        <div class="limit-bar-labels">
+          <span>Sisa hari ini</span>
+          <span id="lb-nums">0/0</span>
+        </div>
+        <div class="limit-bar"><div class="limit-bar-fill" id="lb-fill"></div></div>
+      </div>
+      <div style="display:flex;gap:7px">
+        <button class="btn ghost xs" style="flex:1" onclick="openUpgradeModal()">⬆ Upgrade</button>
+        <button class="btn danger xs" style="flex:1" onclick="doLogout()">Keluar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <!-- ── CHAT PAGE ── -->
+    <div class="page on" id="page-chat">
+      <div class="chat-top">
+        <div class="ct-left">
+          <h3 id="ct-ai-name">💹 LUBRIX AI</h3>
+          <p>Asisten analisis trading profesional • <span id="ct-author">by ridwan</span></p>
+        </div>
+        <div class="ct-model-badge" id="ct-badge">⚡ LUBRIX LOW</div>
+      </div>
+
+      <div class="chat-msgs" id="chat-msgs">
+        <div class="msg ai" id="welcome-msg">
+          <div class="msg-av">🤖</div>
+          <div class="msg-body">
+            <div class="msg-content" id="welcome-text">Halo! Saya <strong>LUBRIX AI</strong>, asisten trading Anda. Saya siap bantu analisis saham, forex, dan crypto. Apa yang ingin kita bahas?</div>
+            <div class="msg-time">Sekarang</div>
+          </div>
+        </div>
+        <div class="typing" id="typing">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+      </div>
+
+      <div class="chat-bottom">
+        <div class="quick-btns">
+          <button class="qb" onclick="qSend('Analisis chart BTC/USDT hari ini')">📊 BTC Hari Ini</button>
+          <button class="qb" onclick="qSend('Strategi scalping EUR/USD jangka pendek')">⚡ Scalping Forex</button>
+          <button class="qb" onclick="qSend('Jelaskan cara membaca RSI dan MACD')">📉 RSI & MACD</button>
+          <button class="qb" onclick="qSend('Tips manajemen risiko trading untuk pemula')">🛡️ Risk Mgmt</button>
+          <button class="qb" onclick="qSend('Kondisi market crypto saat ini dan prospek')">🌍 Market Crypto</button>
+        </div>
+        <div class="limit-out-msg" id="limit-out">
+          ⚠️ Limit harian habis (reset besok). Upgrade untuk akses lebih banyak.
+          <button class="btn sm" style="margin-top:8px" onclick="openUpgradeModal()">Upgrade Sekarang</button>
+        </div>
+        <div class="img-preview-wrap" id="img-preview-wrap">
+          <img id="img-preview-thumb" class="img-preview-thumb" src="" alt="">
+          <button class="img-preview-remove" onclick="removeImgPreview()">✕</button>
+        </div>
+        <div class="input-row">
+          <textarea class="chat-ta" id="chat-ta"
+            placeholder="Tanya soal trading, kirim screenshot chart..."
+            rows="1"
+            onkeydown="chatKey(event)"
+            oninput="taResize(this)"></textarea>
+          <div class="input-actions">
+            <label class="icon-btn" title="Upload screenshot chart" style="cursor:pointer">
+              📎
+              <input type="file" id="img-upload" accept="image/*" style="display:none" onchange="handleImgUpload(event)">
+            </label>
+            <button class="icon-btn send" id="send-btn" onclick="sendMsg()" title="Kirim">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ADMIN PAGE ── -->
+    <div class="page" id="page-admin">
+      <div class="page-head">
+        <div>
+          <h2>🛡️ Panel Admin</h2>
+          <p>Kelola user, tampilan, harga, dan konfigurasi AI</p>
+        </div>
+        <button class="btn sm" onclick="adminRefresh()">↻ Refresh</button>
+      </div>
+      <div class="page-body">
+        <div class="atabs">
+          <button class="atab on" onclick="aTab('users')">👥 Pengguna</button>
+          <button class="atab" onclick="aTab('appearance')">🎨 Tampilan</button>
+          <button class="atab" onclick="aTab('pricing')">💰 Harga</button>
+          <button class="atab" onclick="aTab('config')">⚙️ Konfigurasi</button>
+        </div>
+
+        <!-- USERS PANEL -->
+        <div class="apanel on" id="ap-users">
+          <div class="stat-row" id="admin-stats"></div>
+          <div class="tbl-wrap">
+            <table class="dtbl">
+              <thead><tr>
+                <th>Username</th><th>Email</th><th>Plan</th>
+                <th>Limit/Hari</th><th>Terpakai</th>
+                <th>Role</th><th>Status</th><th>Aksi</th>
+              </tr></thead>
+              <tbody id="users-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- APPEARANCE PANEL -->
+        <div class="apanel" id="ap-appearance">
+          <div class="sg">
+            <div class="sc">
+              <h3>🎨 Warna Background Login</h3>
+              <div class="cp-row" id="color-presets"></div>
+              <div class="color-input-row">
+                <div class="color-swatch">
+                  <input type="color" id="clr-pick" value="#09090f" oninput="syncColorHex(this.value)">
+                </div>
+                <input class="fi" id="clr-hex" placeholder="#09090f" style="flex:1" oninput="syncColorPick(this.value)">
+                <button class="btn sm" onclick="applyColor()">Terapkan</button>
+              </div>
+            </div>
+            <div class="sc">
+              <h3>🖼️ Gambar Background Login</h3>
+              <div class="upload-zone" onclick="document.getElementById('bg-file').click()">
+                <input type="file" id="bg-file" accept="image/*" onchange="handleBgFile(event)">
+                <div class="uz-icon">📤</div>
+                <div class="uz-txt">Klik untuk pilih gambar<br><small style="color:var(--t3)">JPG, PNG, WebP • Maks 4MB</small></div>
+              </div>
+              <img id="bg-preview" class="bg-preview-img" src="" alt="">
+              <div class="row-btns">
+                <button class="btn sm" id="apply-bg-btn" style="display:none" onclick="applyBgImg()">✓ Terapkan</button>
+                <button class="btn sm danger" onclick="removeBgImg()">✕ Hapus Gambar</button>
+              </div>
+            </div>
+          </div>
+          <div class="sc" style="margin-bottom:16px">
+            <h3>🏷️ Nama AI & Author</h3>
+            <div class="sg" style="margin-bottom:0">
+              <div class="fg" style="margin:0">
+                <label>Nama AI (tampil di semua halaman)</label>
+                <input class="fi" id="ai-name-input" placeholder="LUBRIX AI" value="LUBRIX AI">
+              </div>
+              <div class="fg" style="margin:0">
+                <label>Nama Author</label>
+                <input class="fi" id="author-input" placeholder="by ridwan" value="by ridwan">
+              </div>
+            </div>
+            <button class="btn sm" style="margin-top:14px" onclick="saveAiName()">Simpan Nama</button>
+          </div>
+        </div>
+
+        <!-- PRICING PANEL -->
+        <div class="apanel" id="ap-pricing">
+          <div class="sc" style="margin-bottom:16px">
+            <h3>💰 Pengaturan Harga Paket</h3>
+            <p style="font-size:12px;color:var(--t2);margin-bottom:16px;line-height:1.6">
+              Atur harga yang tampil di halaman upgrade user. Harga dalam Rupiah (IDR).
+              Pengaturan ini hanya tampilan — integrasi payment gateway perlu dikonfigurasi terpisah.
+            </p>
+            <div class="pricing-grid">
+              <div class="price-card">
+                <h4>⚡ <span id="p-low-name-lbl">LUBRIX LOW</span></h4>
+                <div class="price-label">Harga per bulan</div>
+                <div class="price-input-row">
+                  <span class="price-currency">Rp</span>
+                  <input class="fi" id="p-low-price" type="number" placeholder="0" style="flex:1">
+                </div>
+                <div class="fg" style="margin-top:12px;margin-bottom:0">
+                  <label>Deskripsi</label>
+                  <input class="fi" id="p-low-desc" placeholder="Akses dasar, 10 pesan/hari">
+                </div>
+              </div>
+              <div class="price-card">
+                <h4>🧠 <span id="p-super-name-lbl">LUBRIX SUPER THINKING</span></h4>
+                <div class="price-label">Harga per bulan</div>
+                <div class="price-input-row">
+                  <span class="price-currency">Rp</span>
+                  <input class="fi" id="p-super-price" type="number" placeholder="0" style="flex:1">
+                </div>
+                <div class="fg" style="margin-top:12px;margin-bottom:0">
+                  <label>Deskripsi</label>
+                  <input class="fi" id="p-super-desc" placeholder="Thinking mendalam, unlimited pesan">
+                </div>
+              </div>
+            </div>
+            <div class="fg" style="margin-top:14px;margin-bottom:10px">
+              <label>Info Pembayaran (tampil di modal upgrade)</label>
+              <textarea class="fi" id="payment-info" rows="3"
+                placeholder="Contoh: Transfer ke BCA 1234567890 a.n. Ridwan. Kirim bukti ke WA 08xxx"></textarea>
+            </div>
+            <button class="btn sm" onclick="savePricing()">Simpan Harga</button>
+          </div>
+        </div>
+
+        <!-- CONFIG PANEL -->
+        <div class="apanel" id="ap-config">
+          <div class="sg">
+            <div class="sc">
+              <h3>🔢 Limit Default User Baru</h3>
+              <div class="fg">
+                <label>Pesan per hari untuk user baru (min 5)</label>
+                <input class="fi" type="number" id="def-limit" min="5" placeholder="5">
+              </div>
+              <button class="btn sm" onclick="saveDefLimit()">Simpan</button>
+            </div>
+            <div class="sc">
+              <h3>🔑 Ganti Password Admin</h3>
+              <div class="fg">
+                <label>Password Baru</label>
+                <input class="fi" type="password" id="new-pw" placeholder="Min 6 karakter">
+              </div>
+              <div class="fg">
+                <label>Konfirmasi Password</label>
+                <input class="fi" type="password" id="conf-pw" placeholder="Ulangi password">
+              </div>
+              <button class="btn sm" onclick="changeAdminPw()">Simpan Password</button>
+            </div>
+          </div>
+          <div class="sc">
+            <h3>💬 System Prompt AI</h3>
+            <div class="fg">
+              <label>Instruksi fokus untuk AI (gunakan {AI_NAME} untuk nama dinamis)</label>
+              <textarea class="fi" id="sys-prompt" rows="7"
+                placeholder="Masukkan instruksi sistem untuk AI..."></textarea>
+            </div>
+            <button class="btn sm" onclick="saveSysPrompt()">Simpan Prompt</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /s-app -->
+
+<!-- MODAL EDIT USER -->
+<div class="modal-ov" id="modal-edit">
+  <div class="modal">
+    <h3>✏️ Edit Pengguna</h3>
+    <input type="hidden" id="me-uname">
+    <div class="fg"><label>Plan</label>
+      <select class="fi" id="me-plan">
+        <option value="free">Free</option>
+        <option value="super">Super (LUBRIX SUPER THINKING)</option>
+      </select>
+    </div>
+    <div class="fg"><label>Role</label>
+      <select class="fi" id="me-role">
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="fg"><label>Limit Pesan / Hari (min 5)</label>
+      <input class="fi" type="number" id="me-limit" min="5">
+    </div>
+    <div class="fg"><label>Status Akun</label>
+      <select class="fi" id="me-status">
+        <option value="active">Aktif</option>
+        <option value="banned">Diblokir</option>
+      </select>
+    </div>
+    <div class="modal-row">
+      <button class="btn ghost sm" onclick="closeModal('modal-edit')">Batal</button>
+      <button class="btn sm" onclick="saveEdit()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL UPGRADE -->
+<div class="modal-ov upgrade-modal" id="modal-upgrade">
+  <div class="modal">
+    <h3>⬆️ Upgrade Akun</h3>
+    <div class="plan-opts" id="upgrade-plans"></div>
+    <div style="background:var(--s2);border-radius:var(--r-sm);padding:14px;font-size:13px;line-height:1.7;color:var(--t2);margin-bottom:4px" id="payment-info-display"></div>
+    <div class="modal-row">
+      <button class="btn ghost sm" onclick="closeModal('modal-upgrade')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ════════════════════════════════════
+     SCRIPT
+════════════════════════════════════ -->
+<script>
+const API = '';  // same domain on Vercel
+let TOKEN = localStorage.getItem('lubrix_token') || '';
+let ME = JSON.parse(localStorage.getItem('lubrix_me') || 'null');
+let chatHistory = [];
+let currentModel = 'low';
+let pendingImg = null; // {data, mediaType, previewUrl}
+let settings = {};
+
+// ── UTILS ────────────────────────────────────────────
+function api(path, method='GET', body=null) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  return fetch(API + path, opts).then(r => r.json());
+}
+
+function toast(msg, type='ok') {
+  const el = document.getElementById('toast');
+  el.textContent = (type==='ok'?'✅ ':'❌ ') + msg;
+  el.className = 'toast on ' + type;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('on'), 2800);
+}
+
+function setMsg(id, msg, type='err') {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'auth-msg ' + type;
+}
+
+function now() {
+  return new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('on'); }
+function openModal(id) { document.getElementById(id).classList.add('on'); }
+
+// ── AUTH ─────────────────────────────────────────────
+function authTab(t) {
+  document.querySelectorAll('.a-tab').forEach((el,i)=>el.classList.toggle('on',(i===0&&t==='login')||(i===1&&t==='register')));
+  document.getElementById('f-login').style.display = t==='login'?'':'none';
+  document.getElementById('f-reg').style.display = t==='register'?'':'none';
+  setMsg('auth-msg','');
+}
+
+async function doLogin() {
+  const username = document.getElementById('l-user').value.trim();
+  const password = document.getElementById('l-pass').value;
+  if (!username||!password) return setMsg('auth-msg','Isi semua kolom.');
+  setMsg('auth-msg','Memproses...','');
+  const res = await api('/api/auth/login','POST',{username,password});
+  if (res.error) return setMsg('auth-msg', res.error);
+  saveSession(res);
+  enterApp();
+}
+
+async function doRegister() {
+  const username = document.getElementById('r-user').value.trim();
+  const email = document.getElementById('r-email').value.trim();
+  const password = document.getElementById('r-pass').value;
+  if (!username||!email||!password) return setMsg('auth-msg','Isi semua kolom.');
+  setMsg('auth-msg','Mendaftarkan...','');
+  const res = await api('/api/auth/register','POST',{username,email,password});
+  if (res.error) return setMsg('auth-msg', res.error);
+  saveSession(res);
+  enterApp();
+}
+
+function saveSession(res) {
+  TOKEN = res.token;
+  ME = { username:res.username, role:res.role, plan:res.plan||'free', dailyLimit:res.dailyLimit??5, usedToday:res.usedToday??0, email:res.email||'' };
+  localStorage.setItem('lubrix_token', TOKEN);
+  localStorage.setItem('lubrix_me', JSON.stringify(ME));
+}
+
+function doLogout() {
+  TOKEN = ''; ME = null; chatHistory = [];
+  localStorage.removeItem('lubrix_token');
+  localStorage.removeItem('lubrix_me');
+  document.getElementById('s-app').classList.remove('on');
+  document.getElementById('s-auth').classList.add('on');
+  document.getElementById('l-user').value='';
+  document.getElementById('l-pass').value='';
+  setMsg('auth-msg','');
+}
+
+// ── APP ENTRY ────────────────────────────────────────
+async function enterApp() {
+  document.getElementById('s-auth').classList.remove('on');
+  document.getElementById('s-app').classList.add('on');
+  await loadPublicSettings();
+  updateSidebar();
+  updateLimitUI();
+  goPage('chat');
+}
+
+async function loadPublicSettings() {
+  try {
+    const res = await fetch(API + '/api/admin/settings');
+    settings = await res.json();
+  } catch { settings = {}; }
+  applyBranding();
+  applyBgSettings();
+}
+
+function applyBranding() {
+  const name = settings.aiName || 'LUBRIX AI';
+  const author = settings.authorName || 'by ridwan';
+  document.getElementById('sb-ai-name').textContent = name;
+  document.getElementById('ct-ai-name').textContent = '💹 ' + name;
+  document.getElementById('ct-author').textContent = author;
+  document.getElementById('brand-name-auth').textContent = name.replace(' AI','').replace(' ai','');
+  document.getElementById('brand-author-auth').textContent = author + ' • Trading Intelligence';
+  document.title = name;
+  // update welcome
+  document.getElementById('welcome-text').innerHTML =
+    `Halo! Saya <strong>${name}</strong>, asisten trading Anda. ${author}<br>Saya siap bantu analisis saham, forex, crypto dan lebih. Apa yang ingin kita bahas?`;
+  // update model names in sidebar
+  const low = settings.aiName ? settings.aiName.replace(' AI','').replace(' ai','') + ' LOW' : 'LUBRIX LOW';
+  const sup = settings.aiName ? settings.aiName.replace(' AI','').replace(' ai','') + ' SUPER THINKING' : 'LUBRIX SUPER THINKING';
+  document.getElementById('m-low-name').textContent = low;
+  document.getElementById('m-super-name').textContent = sup;
+  updateModelBadge();
+}
+
+function applyBgSettings() {
+  const bg = document.getElementById('auth-bg-layer');
+  if (settings.bgImage) {
+    bg.style.backgroundImage = `url(${settings.bgImage})`;
+    bg.style.backgroundColor = '';
+  } else {
+    bg.style.backgroundImage = 'none';
+    bg.style.backgroundColor = settings.bgColor || '#09090f';
+  }
+}
+
+// ── SIDEBAR / PAGES ──────────────────────────────────
+function updateSidebar() {
+  if (!ME) return;
+  document.getElementById('sb-av').textContent = ME.username[0].toUpperCase();
+  document.getElementById('sb-uname').textContent = ME.username;
+  document.getElementById('sb-urole').textContent = ME.role==='admin'?'👑 Admin':(ME.plan==='super'?'💎 Super':'👤 Member');
+  document.getElementById('nav-admin-wrap').style.display = ME.role==='admin'?'':'none';
+}
+
+function updateLimitUI() {
+  if (!ME) return;
+  const isAdmin = ME.role === 'admin';
+  const limit = ME.dailyLimit ?? 5;
+  const used = ME.usedToday ?? 0;
+  const remaining = limit - used;
+  const pct = isAdmin ? 0 : Math.min(100, (used/limit)*100);
+
+  document.getElementById('sb-ulimit').textContent = isAdmin ? '∞ Unlimited' : `${remaining} pesan tersisa`;
+  document.getElementById('lb-nums').textContent = isAdmin ? '∞' : `${remaining}/${limit}`;
+
+  const fill = document.getElementById('lb-fill');
+  fill.style.width = isAdmin ? '0%' : pct + '%';
+  fill.className = 'limit-bar-fill' + (pct>=100?' out':pct>=75?' warn':'');
+
+  const isOut = !isAdmin && used >= limit;
+  document.getElementById('limit-out').style.display = isOut ? '' : 'none';
+  const btn = document.getElementById('send-btn');
+  const ta = document.getElementById('chat-ta');
+  btn.disabled = isOut;
+  ta.disabled = isOut;
+  ta.placeholder = isOut ? 'Limit harian habis. Upgrade atau tunggu besok.' : 'Tanya soal trading, kirim screenshot chart...';
+}
+
+function goPage(p) {
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('on'));
+  document.getElementById('page-'+p).classList.add('on');
+  const nb = document.getElementById('nav-'+p);
+  if (nb) nb.classList.add('on');
+  if (p==='admin') loadAdminPanel();
+}
+
+// ── MODEL SELECTOR ───────────────────────────────────
+function selectModel(m) {
+  // check plan
+  if (m==='super' && ME?.role!=='admin' && ME?.plan!=='super') {
+    openUpgradeModal();
+    return;
+  }
+  currentModel = m;
+  document.getElementById('m-low').classList.toggle('on', m==='low');
+  document.getElementById('m-super').classList.toggle('on', m==='super');
+  updateModelBadge();
+}
+
+function updateModelBadge() {
+  const badge = document.getElementById('ct-badge');
+  const lowName = document.getElementById('m-low-name').textContent;
+  const supName = document.getElementById('m-super-name').textContent;
+  if (currentModel==='super') {
+    badge.textContent = '🧠 ' + supName;
+    badge.className = 'ct-model-badge super-badge';
+  } else {
+    badge.textContent = '⚡ ' + lowName;
+    badge.className = 'ct-model-badge';
+  }
+}
+
+// ── CHAT ─────────────────────────────────────────────
+function taResize(el) {
+  el.style.height = '46px';
+  el.style.height = Math.min(el.scrollHeight, 130) + 'px';
+}
+
+function chatKey(e) {
+  if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+}
+
+function qSend(txt) {
+  document.getElementById('chat-ta').value = txt;
+  sendMsg();
+}
+
+function handleImgUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 5*1024*1024) { toast('File terlalu besar (maks 5MB)', 'err'); return; }
+  const mt = file.type || 'image/jpeg';
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const b64 = ev.target.result.split(',')[1];
+    pendingImg = { data: b64, mediaType: mt, previewUrl: ev.target.result };
+    document.getElementById('img-preview-thumb').src = ev.target.result;
+    document.getElementById('img-preview-wrap').classList.add('show');
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+function removeImgPreview() {
+  pendingImg = null;
+  document.getElementById('img-preview-wrap').classList.remove('show');
+  document.getElementById('img-preview-thumb').src = '';
+}
+
+function appendMsg(role, content, imgPreview=null, thinking=null) {
+  const container = document.getElementById('chat-msgs');
+  const typing = document.getElementById('typing');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+
+  const avHTML = role==='user'
+    ? `<div class="msg-av" style="background:var(--accent);font-size:12px;font-weight:800">${ME?.username?.[0]?.toUpperCase()||'U'}</div>`
+    : `<div class="msg-av">🤖</div>`;
+
+  let thinkHTML = '';
+  if (thinking) {
+    thinkHTML = `
+      <div class="thinking-block">
+        <button class="thinking-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.firstChild.textContent=this.nextElementSibling.classList.contains('open')?'▾':'▸'">
+          <span>▸</span> Proses berpikir (klik untuk lihat)
+        </button>
+        <div class="thinking-content">${esc(thinking)}</div>
+      </div>`;
+  }
+
+  let imgHTML = '';
+  if (imgPreview) imgHTML = `<img class="msg-img" src="${imgPreview}" alt="Chart">`;
+
+  div.innerHTML = `
+    ${avHTML}
+    <div class="msg-body">
+      ${thinkHTML}
+      ${imgHTML}
+      <div class="msg-content">${esc(content)}</div>
+      <div class="msg-time">${now()}</div>
+    </div>`;
+  container.insertBefore(div, typing);
+  container.scrollTop = container.scrollHeight;
+}
+
+async function sendMsg() {
+  const ta = document.getElementById('chat-ta');
+  const text = ta.value.trim();
+  if (!text && !pendingImg) return;
+  if (ME?.role!=='admin' && (ME?.usedToday??0) >= (ME?.dailyLimit??5)) return;
+
+  const displayText = text || '(Screenshot chart dikirim untuk dianalisis)';
+  const imgToSend = pendingImg;
+
+  ta.value = '';
+  taResize(ta);
+  appendMsg('user', displayText, imgToSend?.previewUrl);
+  removeImgPreview();
+  chatHistory.push({ role:'user', content: displayText });
+
+  document.getElementById('typing').classList.add('on');
+  document.getElementById('send-btn').disabled = true;
+  document.getElementById('chat-msgs').scrollTop = 999999;
+
+  const res = await api('/api/chat','POST',{
+    messages: chatHistory,
+    model: currentModel,
+    imageBase64: imgToSend ? { data: imgToSend.data, mediaType: imgToSend.mediaType } : null,
+  });
+
+  document.getElementById('typing').classList.remove('on');
+  document.getElementById('send-btn').disabled = !!(ME?.role!=='admin' && ((ME?.usedToday??0)+1) >= (ME?.dailyLimit??5));
+
+  if (res.error) {
+    appendMsg('ai', '⚠️ ' + res.error);
+    return;
+  }
+
+  appendMsg('ai', res.reply, null, res.thinking);
+  chatHistory.push({ role:'assistant', content: res.reply });
+
+  // update usage
+  if (ME) {
+    ME.usedToday = res.usedToday ?? (ME.usedToday + 1);
+    ME.dailyLimit = res.dailyLimit ?? ME.dailyLimit;
+    localStorage.setItem('lubrix_me', JSON.stringify(ME));
+    updateLimitUI();
+  }
+}
+
+// ── UPGRADE MODAL ─────────────────────────────────────
+function openUpgradeModal() {
+  const pricing = settings.pricing || {};
+  const lowName = document.getElementById('m-low-name').textContent;
+  const supName = document.getElementById('m-super-name').textContent;
+
+  document.getElementById('upgrade-plans').innerHTML = `
+    <div class="plan-card">
+      <h4>⚡ ${lowName}</h4>
+      <div class="plan-price">Rp ${Number(pricing.lowPrice||0).toLocaleString('id-ID')}</div>
+      <p>${pricing.lowDesc||'Akses dasar, cepat & efisien'}<br>Reset limit setiap hari</p>
+    </div>
+    <div class="plan-card" style="border-color:var(--amber)">
+      <h4>🧠 ${supName}</h4>
+      <div class="plan-price" style="color:var(--amber)">Rp ${Number(pricing.superPrice||0).toLocaleString('id-ID')}</div>
+      <p>${pricing.superDesc||'Thinking mendalam, unlimited'}<br>Akses model super thinking</p>
+    </div>`;
+
+  document.getElementById('payment-info-display').innerHTML =
+    (pricing.paymentInfo || 'Hubungi admin untuk informasi pembayaran.').replace(/\n/g,'<br>');
+
+  openModal('modal-upgrade');
+}
+
+// ── ADMIN PANEL ───────────────────────────────────────
+async function loadAdminPanel() {
+  if (ME?.role !== 'admin') return;
+  await loadAdminSettings();
+  await loadAdminStats();
+  await loadUsers();
+}
+
+async function adminRefresh() {
+  await loadAdminPanel();
+  toast('Data diperbarui');
+}
+
+async function loadAdminSettings() {
+  const res = await api('/api/admin/settings');
+  settings = { ...settings, ...res };
+  // populate fields
+  document.getElementById('ai-name-input').value = settings.aiName || 'LUBRIX AI';
+  document.getElementById('author-input').value = settings.authorName || 'by ridwan';
+  document.getElementById('def-limit').value = settings.defaultLimit ?? 5;
+  document.getElementById('sys-prompt').value = settings.systemPrompt || '';
+  const pr = settings.pricing || {};
+  document.getElementById('p-low-price').value = pr.lowPrice || '';
+  document.getElementById('p-super-price').value = pr.superPrice || '';
+  document.getElementById('p-low-desc').value = pr.lowDesc || '';
+  document.getElementById('p-super-desc').value = pr.superDesc || '';
+  document.getElementById('payment-info').value = pr.paymentInfo || '';
+  document.getElementById('clr-hex').value = settings.bgColor || '#09090f';
+  document.getElementById('clr-pick').value = settings.bgColor || '#09090f';
+  renderColorPresets();
+  if (settings.bgImage) {
+    document.getElementById('bg-preview').src = settings.bgImage;
+    document.getElementById('bg-preview').style.display = 'block';
+  }
+}
+
+async function loadAdminStats() {
+  const res = await api('/api/admin/stats');
+  document.getElementById('admin-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-lbl">Total User</div><div class="stat-val c-purple">${res.total||0}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Aktif</div><div class="stat-val c-green">${res.active||0}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Plan Super</div><div class="stat-val c-amber">${res.planSuper||0}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Diblokir</div><div class="stat-val c-red">${res.banned||0}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Admin</div><div class="stat-val c-blue">${res.admins||0}</div></div>`;
+}
+
+async function loadUsers() {
+  const res = await api('/api/admin/users');
+  const users = res.users || [];
+  document.getElementById('users-tbody').innerHTML = users.map(u => `
+    <tr>
+      <td><strong>${u.username}</strong></td>
+      <td style="color:var(--t2);font-size:12px">${u.email||'-'}</td>
+      <td><span class="badge ${u.plan==='super'?'b-amber':'b-green'}">${u.plan==='super'?'💎 Super':'Free'}</span></td>
+      <td>${u.role==='admin'?'<span class="c-green">∞</span>':u.dailyLimit}</td>
+      <td style="color:var(--t2)">${u.usedToday||0}</td>
+      <td><span class="badge ${u.role==='admin'?'b-purple':'b-blue'}">${u.role}</span></td>
+      <td><span class="badge ${u.status==='active'?'b-green':'b-red'}">${u.status==='active'?'Aktif':'Blokir'}</span></td>
+      <td>
+        <button class="act-btn ab-edit" onclick="openEdit('${u.username}','${u.role}','${u.status}','${u.plan}',${u.dailyLimit||5})">Edit</button>
+        ${u.username!==ME?.username?`<button class="act-btn ab-del" onclick="delUser('${u.username}')">Hapus</button>`:''}
+      </td>
+    </tr>`).join('');
+}
+
+function openEdit(username, role, status, plan, limit) {
+  document.getElementById('me-uname').value = username;
+  document.getElementById('me-role').value = role;
+  document.getElementById('me-status').value = status;
+  document.getElementById('me-plan').value = plan;
+  document.getElementById('me-limit').value = limit;
+  openModal('modal-edit');
+}
+
+async function saveEdit() {
+  const username = document.getElementById('me-uname').value;
+  const role = document.getElementById('me-role').value;
+  const status = document.getElementById('me-status').value;
+  const plan = document.getElementById('me-plan').value;
+  const dailyLimit = Math.max(5, parseInt(document.getElementById('me-limit').value)||5);
+  const res = await api('/api/admin/users','PUT',{username,role,status,plan,dailyLimit});
+  if (res.error) return toast(res.error,'err');
+  closeModal('modal-edit');
+  await loadUsers();
+  await loadAdminStats();
+  toast('Pengguna diperbarui');
+}
+
+async function delUser(username) {
+  if (!confirm(`Hapus user "${username}"?`)) return;
+  const res = await api('/api/admin/users','DELETE',{username});
+  if (res.error) return toast(res.error,'err');
+  await loadUsers();
+  await loadAdminStats();
+  toast('User dihapus');
+}
+
+function aTab(t) {
+  document.querySelectorAll('.atab').forEach((el,i)=>{
+    el.classList.toggle('on',['users','appearance','pricing','config'][i]===t);
+  });
+  document.querySelectorAll('.apanel').forEach(el=>el.classList.remove('on'));
+  document.getElementById('ap-'+t).classList.add('on');
+}
+
+// ── APPEARANCE ────────────────────────────────────────
+const BG_PRESETS = [
+  '#09090f','#0d1117','#0f1923','#11110e',
+  '#1a0533','#001a0a','#1a0800','#000a1a',
+];
+let pendingBgData = null;
+
+function renderColorPresets() {
+  const cur = settings.bgColor || '#09090f';
+  document.getElementById('color-presets').innerHTML = BG_PRESETS.map(c=>`
+    <div class="cp ${c===cur?'on':''}" style="background:${c};border-color:${c===cur?'#fff':'transparent'}"
+      onclick="applyColor('${c}')"></div>`).join('');
+}
+
+function syncColorHex(v) { document.getElementById('clr-hex').value=v; }
+function syncColorPick(v) { try{ document.getElementById('clr-pick').value=v; }catch{} }
+
+async function applyColor(c) {
+  const color = c || document.getElementById('clr-hex').value.trim() || document.getElementById('clr-pick').value;
+  const res = await api('/api/admin/settings','POST',{bgColor:color, bgImage:null});
+  if (res.error) return toast(res.error,'err');
+  settings.bgColor = color; settings.bgImage = null;
+  applyBgSettings();
+  renderColorPresets();
+  toast('Warna background diperbarui');
+}
+
+function handleBgFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 4*1024*1024) { toast('File terlalu besar (maks 4MB)','err'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingBgData = ev.target.result;
+    document.getElementById('bg-preview').src = pendingBgData;
+    document.getElementById('bg-preview').style.display='block';
+    document.getElementById('apply-bg-btn').style.display='';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function applyBgImg() {
+  if (!pendingBgData) return;
+  const res = await api('/api/admin/settings','POST',{bgImage:pendingBgData});
+  if (res.error) return toast(res.error,'err');
+  settings.bgImage = pendingBgData;
+  applyBgSettings();
+  document.getElementById('apply-bg-btn').style.display='none';
+  pendingBgData = null;
+  toast('Gambar background diterapkan');
+}
+
+async function removeBgImg() {
+  const res = await api('/api/admin/settings','POST',{bgImage:null});
+  if (res.error) return toast(res.error,'err');
+  settings.bgImage = null;
+  applyBgSettings();
+  document.getElementById('bg-preview').style.display='none';
+  document.getElementById('apply-bg-btn').style.display='none';
+  pendingBgData = null;
+  toast('Gambar background dihapus');
+}
+
+async function saveAiName() {
+  const aiName = document.getElementById('ai-name-input').value.trim() || 'LUBRIX AI';
+  const authorName = document.getElementById('author-input').value.trim() || 'by ridwan';
+  const res = await api('/api/admin/settings','POST',{aiName,authorName});
+  if (res.error) return toast(res.error,'err');
+  settings.aiName = aiName; settings.authorName = authorName;
+  applyBranding();
+  toast('Nama AI & author disimpan');
+}
+
+// ── PRICING ───────────────────────────────────────────
+async function savePricing() {
+  const pricing = {
+    lowPrice: parseInt(document.getElementById('p-low-price').value)||0,
+    superPrice: parseInt(document.getElementById('p-super-price').value)||0,
+    lowDesc: document.getElementById('p-low-desc').value.trim(),
+    superDesc: document.getElementById('p-super-desc').value.trim(),
+    paymentInfo: document.getElementById('payment-info').value.trim(),
+  };
+  const res = await api('/api/admin/settings','POST',{pricing});
+  if (res.error) return toast(res.error,'err');
+  settings.pricing = pricing;
+  toast('Harga berhasil disimpan');
+}
+
+// ── CONFIG ────────────────────────────────────────────
+async function saveDefLimit() {
+  const v = Math.max(5, parseInt(document.getElementById('def-limit').value)||5);
+  const res = await api('/api/admin/settings','POST',{defaultLimit:v});
+  if (res.error) return toast(res.error,'err');
+  settings.defaultLimit = v;
+  toast('Default limit disimpan');
+}
+
+async function saveSysPrompt() {
+  const v = document.getElementById('sys-prompt').value.trim();
+  const res = await api('/api/admin/settings','POST',{systemPrompt:v});
+  if (res.error) return toast(res.error,'err');
+  toast('System prompt disimpan');
+}
+
+async function changeAdminPw() {
+  const np = document.getElementById('new-pw').value;
+  const cp = document.getElementById('conf-pw').value;
+  if (!np||!cp) return toast('Isi semua kolom password','err');
+  if (np!==cp) return toast('Password tidak cocok','err');
+  if (np.length<6) return toast('Password minimal 6 karakter','err');
+  // call a simple update via users endpoint
+  const res = await api('/api/admin/users','PUT',{username:ME.username, newPassword:np});
+  if (res.error) return toast(res.error,'err');
+  document.getElementById('new-pw').value='';
+  document.getElementById('conf-pw').value='';
+  toast('Password admin diperbarui');
+}
+
+// ── INIT ──────────────────────────────────────────────
+async function init() {
+  // Load public settings for branding on auth page
+  try {
+    const res = await fetch(API + '/api/admin/settings');
+    settings = await res.json();
+    applyBgSettings();
+    const name = settings.aiName || 'LUBRIX';
+    document.getElementById('brand-name-auth').textContent = name.replace(/ ?AI$/i,'');
+    document.getElementById('brand-author-auth').textContent = (settings.authorName||'by ridwan') + ' • Trading Intelligence';
+    document.title = (settings.aiName||'LUBRIX AI');
+  } catch {}
+
+  // Auto-login if token exists
+  if (TOKEN && ME && ME.username) {
+    enterApp();
+  }
+}
+
+init();
+</script>
+</body>
+</html>

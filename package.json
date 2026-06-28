@@ -1,0 +1,9 @@
+{
+  "name": "lubrix-ai",
+  "version": "1.0.0",
+  "description": "LUBRIX AI - Trading Assistant by ridwan",
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  },
+  "engines": { "node": "18.x" }
+}
